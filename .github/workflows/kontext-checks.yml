@@ -25,8 +25,12 @@ jobs:
           brew --version
           core="$(brew --repository)/Library/Taps/homebrew/homebrew-core"
           rm -rf "$core"
-          # homebrew/core = the PR branch, so tap.user is "Homebrew" exactly as in core.
-          git clone --depth 1 --branch kontext "$GH_REPO_URL" "$core"
+          # Official clone (Homebrew only trusts homebrew/core with its own remote), then
+          # check out the PR branch on top, so tap.user is "Homebrew" exactly as in core.
+          git clone --depth 1 https://github.com/Homebrew/homebrew-core "$core"
+          git -C "$core" fetch --depth 1 "$GH_REPO_URL" kontext
+          git -C "$core" checkout --quiet FETCH_HEAD
+          git -C "$core" log --oneline -1
           brew install --build-from-source kontext
           brew test kontext
           brew audit --strict kontext
