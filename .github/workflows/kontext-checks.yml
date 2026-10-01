@@ -18,7 +18,7 @@ jobs:
           HOMEBREW_NO_INSTALL_FROM_API: "1"
           HOMEBREW_NO_AUTO_UPDATE: "1"
           HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
-          GH_REPO_URL: https://github.com/kontext-security/homebrew-core
+          PR_REF: pull/314749/head   # Homebrew/homebrew-core#314749, from whichever fork it comes
         run: |
           set -euo pipefail
           # Update brew itself first (API mode, no homebrew-core clone); the formula uses recent DSL.
@@ -29,7 +29,7 @@ jobs:
           # Official clone (Homebrew only trusts homebrew/core with its own remote), then
           # check out the PR branch on top, so tap.user is "Homebrew" exactly as in core.
           git clone --depth 1 https://github.com/Homebrew/homebrew-core "$core"
-          git -C "$core" fetch --depth 1 "$GH_REPO_URL" kontext
+          git -C "$core" fetch --depth 1 https://github.com/Homebrew/homebrew-core "$PR_REF"
           git -C "$core" checkout --quiet FETCH_HEAD
           git -C "$core" log --oneline -1
           brew install --build-from-source kontext
