@@ -1,0 +1,34 @@
+name: kontext formula checks
+
+on:
+  push:
+    branches: [kontext-checks]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - name: Install, test and audit kontext from the PR branch
+        env:
+          HOMEBREW_NO_INSTALL_FROM_API: "1"
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+          GH_REPO_URL: https://github.com/kontext-security/homebrew-core
+        run: |
+          set -euo pipefail
+          # Update brew itself first (API mode, no homebrew-core clone); the formula uses recent DSL.
+          env -u HOMEBREW_NO_INSTALL_FROM_API brew update --quiet
+          brew --version
+          core="$(brew --repository)/Library/Taps/homebrew/homebrew-core"
+          rm -rf "$core"
+          # homebrew/core = the PR branch, so tap.user is "Homebrew" exactly as in core.
+          git clone --depth 1 --branch kontext "$GH_REPO_URL" "$core"
+          brew install --build-from-source kontext
+          brew test kontext
+          brew audit --strict kontext
+          brew audit --new --strict --online kontext
+          kontext --version
