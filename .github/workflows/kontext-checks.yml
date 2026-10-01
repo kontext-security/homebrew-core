@@ -17,6 +17,7 @@ jobs:
         env:
           HOMEBREW_NO_INSTALL_FROM_API: "1"
           HOMEBREW_NO_AUTO_UPDATE: "1"
+          HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
           GH_REPO_URL: https://github.com/kontext-security/homebrew-core
         run: |
           set -euo pipefail
